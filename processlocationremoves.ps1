@@ -110,8 +110,12 @@ foreach ($item in $items) {
     $deivceSerial2 = $item.'ESN/IMEI'.TrimStart('S')
     $device = $devices | Where-Object {
         $deviceSerial1 -contains $_.DeviceSerial
-        -or
-        $deviceSerial2 -contains $_.DeviceSerial
+    }
+    $deviceID = $device.DeviceID
+    if (!$deviceID) {
+        $device = $devices | Where-Object {
+            $deviceSerial2 -contains $_.DeviceSerial
+        }
     }
     $locationID = $location.LocationID
     $deviceID = $device.DeviceID
