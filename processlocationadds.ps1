@@ -107,7 +107,16 @@ foreach ($item in $items) {
         $locationName -contains $_.LocationName
     }
     $deviceSerial1 = $item.MSN.TrimStart('S')
-    $deivceSerial2 = $item.'ESN/IMEI'.TrimStart('S')
+    $deviceSerial2 = $item.'ESN/IMEI'.TrimStart('S')
+    Write-Verbose ""
+    Write-Verbose("---------- MSN ----------")
+    Write-Verbose $deviceSerial1
+    Write-Verbose("-------------------------")
+    Write-Verbose ""
+    Write-Verbose("---------- ESN/IMEI ----------")
+    Write-Verbose $deviceSerial2
+    Write-Verbose("------------------------------")
+    Write-Verbose ""
     $device = $devices | Where-Object {
         $deviceSerial1 -contains $_.DeviceSerial
     }
