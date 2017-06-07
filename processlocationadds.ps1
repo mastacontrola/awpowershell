@@ -106,9 +106,12 @@ foreach ($item in $items) {
     $location = $locations | Where-Object {
         $locationName -contains $_.LocationName
     }
-    $deviceSerial = $item.MSN.TrimStart('S')
+    $deviceSerial1 = $item.MSN.TrimStart('S')
+    $deivceSerial2 = $item.'ESN/IMEI'.TrimStart('S')
     $device = $devices | Where-Object {
-        $deviceSerial -contains $_.DeviceSerial
+        $deviceSerial1 -contains $_.DeviceSerial
+        -or
+        $deviceSerial2 -contains $_.DeviceSerial
     }
     $locationID = $location.LocationID
     $deviceID = $device.DeviceID
@@ -117,6 +120,7 @@ foreach ($item in $items) {
             Location = $item.Location
             'Asset Tag' = $item.'Asset Tag'
             MSN = $item.MSN
+            'ESN/IMEI' = $item.'ESN/IMEI'
             LocationName = $location.LocationName
             LocationID = $location.LocationID
             LocationType = $location.LocationType
@@ -134,6 +138,7 @@ foreach ($item in $items) {
             Location = $item.Location
             'Asset Tag' = $item.'Asset Tag'
             MSN = $item.MSN
+            'ESN/IMEI' = $item.'ESN/IMEI'
             LocationName = $location.LocationName
             LocationID = $location.LocationID
             LocationType = $location.LocationType
