@@ -97,17 +97,26 @@ $devices = Import-CSV $deviceCSV
 $items = Import-CSV $baseCSV
 # Initialize dataset
 $dataSet = @()
+# Initialize dataFailed
 $dataFailed = @()
 # Loop our items.
 foreach ($item in $items) {
+    #(Re) Initialize details and detailsFailed elements.
     $details = @{}
     $detFailed = @{}
+    # Our location name from the current item.
     $locationName = $item.Location
+    # Find our location that matches our pulled list.
     $location = $locations | Where-Object {
         $_.LocationName -contains $locationName
     }
+    $locationID = $location.LocationID
+    # macOS/iOS devices serial number from barcode typically
+    # # has prepending S for some reason. The trimstart removes this character.
     $deviceSerial1 = $item.MSN.TrimStart('S')
     $deviceSerial2 = $item.'ESN/IMEI'.TrimStart('S')
+    # Write to console, if we have -Verbose on, the serials we will be searching
+    # for.
     Write-Verbose ""
     Write-Verbose("---------- MSN ----------")
     Write-Verbose $deviceSerial1
@@ -117,17 +126,19 @@ foreach ($item in $items) {
     Write-Verbose $deviceSerial2
     Write-Verbose("------------------------------")
     Write-Verbose ""
+    # Test one see if we can find it based on the MSN
     $device = $devices | Where-Object {
         $deviceSerial1 -contains $_.DeviceSerial
     }
-    $deviceID = $device.DeviceID
+    $deviceID = $device.DeviceIDA
+    # If the device ID not found, find based on ESN/IMEI
     if (!$deviceID) {
         $device = $devices | Where-Object {
             $deviceSerial2 -contains $_.DeviceSerial
         }
     }
-    $locationID = $location.LocationID
     $deviceID = $device.DeviceID
+    # If the location isn't found, it's a failure.
     If (!$locationID) {
         $detFailed = [ordered]@{
             Location = $item.Location
@@ -146,6 +157,7 @@ foreach ($item in $items) {
         $dataFailed += New-Object PSObject -Property $detFailed
         continue;
     }
+    # If the device isn't found it's a failure.
     if (!$deviceID) {
         $detFailed = [ordered]@{
             Location = $item.Location
@@ -164,14 +176,16 @@ foreach ($item in $items) {
         $dataFailed += New-Object PSObject -Property $detFailed
         continue;
     }
+    # Store details we need.
     $details = [ordered]@{
         DeviceID = $deviceID
         LocationID = $locationID
     }
-    Write-Verbose $details
     $dataSet += New-Object PSObject -Property $details
 }
+# Export the dataSet into a single CSV.
 $dataSet | Export-CSV -Path $outputFile -NoTypeInformation
+# If we have any failures store to a CSV.
 if ($dataFailed.Length) {
     $dataFailed | Export-CSV -Path ".\failureRemItems.csv" -NoTypeInformation
 }
@@ -180,33 +194,40 @@ $det = @()
 $dataSet | ForEach-Object {
     $det += $_.DeviceID;
 }
-Write-Verbose $det
 Write-Output "Done processing the information preparing to update"
+# Creates our array of data for later on.
 $dets = @{}
 $dataSet | ForEach-Object {
     $dets[$_.LocationID] += $det;
 }
+# This does similar but allows us to get the now set simplified
+# IDs
 $dev = @{}
 $dets.getEnumerator() | ForEach-Object {
     # Change our url calls for each set we need to update
     $changeURL = $baseURL + "mdm/tags/" + $_.Name + "/removedevices"
+    # Write out information for us to know what's going on.
     Write-Verbose ""
     Write-Verbose "---------- Caller URL ----------"
     Write-Verbose ("URL: " + $changeURL)
     Write-Verbose "--------------------------------"
     Write-Verbose ""
-    
+    # Builds the data needed for sending.
     $dev['BulkValues'] = @{
         'Value' = $_.Value | Select -uniq
     }
+    # Store the built data into JSON format.
     $deviceIDs = ($dev | ConvertTo-JSON)
+    # Display the data it is going to be sending.
     Write-Verbose ""
     Write-Verbose "---------- Sending Body ----------"
     Write-Verbose $deviceIDs
     Write-Verbose "----------------------------------"
     Write-Verbose ""
+    # Perform the action.
     $ret = Invoke-RestMethod -Method Post -Uri $changeURL -Headers $headers -ContentType $contentType -Body $deviceIDs
     Write-Verbose $ret
+    # Sleep a little so AW doesn't think we need to be blocked.
     Start-Sleep -m 500
 }
 Write-Output "All Complete"
