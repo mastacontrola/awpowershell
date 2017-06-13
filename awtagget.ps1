@@ -72,7 +72,7 @@ $restUser = Get-BasicUserForAuth $userInfo
 $headers = Build-Headers $restUser $tenantAPIKey $contentType $contentType
 
 # Setup our call string to get the tags
-$changeURL = $baseURL + "system/groups/$id/tags?pageSize=0"
+$changeURL = $baseURL + "system/groups/$id/tags?pageSize=10000"
 
 # Write out information for us to know what's going on.
 Write-Verbose ""
@@ -82,7 +82,19 @@ Write-Verbose "--------------------------------";
 write-Verbose ""
 
 # Perform request
-$request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp_location.json"
+If ($Proxy) {
+    If ($UserAgent) {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp_location.json" -Proxy $Proxy -UserAgent $UserAgent
+    } Else {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp_location.json" -Proxy $Proxy
+    }
+} Else {
+    If ($UserAgent) {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp_location.json" -UserAgent $UserAgent
+    } Else {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp_location.json"
+    }
+}
 
 # As we stored all the data into a file we need to read it in.
 $data = Get-Content ".\temp_location.json" -Raw | ConvertFrom-Json

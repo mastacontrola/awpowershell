@@ -222,7 +222,19 @@ $det.getEnumerator() | ForEach-Object {
     Write-Verbose "----------------------------------"
     Write-Verbose ""
     # Perform the action.
-    $ret = Invoke-RestMethod -Method Post -Uri $changeURL -Headers $headers -ContentType $contentType -Body $deviceIDs
+    If ($Proxy) {
+        If ($UserAgent) {
+            $ret = Invoke-RestMethod -Method Post -Uri $changeURL -Headers $headers -ContentType $contentType -Body $deviceIDs -Proxy $Proxy -UserAgent $UserAgent
+        } Else {
+            $ret = Invoke-RestMethod -Method Post -Uri $changeURL -Headers $headers -ContentType $contentType -Body $deviceIDs -Proxy $Proxy
+        }
+    } Else {
+        If ($UserAgent) {
+            $ret = Invoke-RestMethod -Method Post -Uri $changeURL -Headers $headers -ContentType $contentType -Body $deviceIDs -UserAgent $UserAgent
+        } Else {
+            $ret = Invoke-RestMethod -Method Post -Uri $changeURL -Headers $headers -ContentType $contentType -Body $deviceIDs
+        }
+    }
     Write-Verbose $ret
     # Sleep a little bit so AW doesn't think we need to be blocked.
     Start-Sleep -m 500

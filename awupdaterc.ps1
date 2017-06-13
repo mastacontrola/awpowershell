@@ -11,3 +11,5 @@ $userName = '';
 $password = '';
 $tenantAPIKey = '';
 $endpointURL = '';
+$Proxy = '';
+$UserAgent = '';

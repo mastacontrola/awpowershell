@@ -71,7 +71,7 @@ $restUser = Get-BasicUserForAuth $userInfo
 $headers = Build-Headers $restUser $tenantAPIKey $contentType $contentType
 
 # Setup our caller string to get the devices
-$changeURL = $baseURL + "mdm/devices/search?pageSize=0";
+$changeURL = $baseURL + "mdm/devices/search?pageSize=10000";
 
 # Write out infromation for us to know what's going on.
 Write-Verbose ""
@@ -79,9 +79,20 @@ Write-Verbose "---------- Caller URL ----------"
 Write-Verbose ("URL: " + $changeURL)
 Write-Verbose "--------------------------------"
 Write-Verbose ""
-
-# Perform request
-$request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp.json"
+If ($Proxy) {
+    If ($UserAgent) {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp.json" -Proxy $Proxy -UserAgent $UserAgent
+    } Else {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp.json" -Proxy $Proxy
+    }
+} Else {
+    If ($UserAgent) {
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp.json" -UserAgent $UserAgent
+    } Else {
+        # Perform request
+        $request = Invoke-RestMethod -Uri $changeURL -Headers $headers -OutFile ".\temp.json"
+    }
+}
 
 # As we stored all the data into a file we need to read it in.
 $data = Get-Content ".\temp.json" -Raw | ConvertFrom-Json
