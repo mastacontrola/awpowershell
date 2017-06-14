@@ -19,6 +19,24 @@ AirWatch Powershell API Scripts
 
  * Nothing is required for this script.
 
+## awgetgroups.ps1
+
+ * Can take arguments (not required)
+
+ 1. `-configFile '\path\to\filename'`
+
+  * The configuration file. Defaults to current lcoation. Filename is awupdaterc.ps1 as default. (e.g. `.\awupdaterc.ps1`)
+
+  * Used to change the location of your configuration file as needed.
+
+ 2. `-outputFile '\path\to\filename'`
+
+  * The csv file to store the information. Defaults to current lcoation. Filename is `group_list.csv`. (e.g. `.\group_list.csv`)
+
+ * Downloads the current group list from your AirWatch environment.
+
+ * Nothing is required for this script.
+
 ## awtagget.ps1
 
  * ### Required Arguments
