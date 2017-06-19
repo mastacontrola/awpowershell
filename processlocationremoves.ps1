@@ -69,7 +69,7 @@ If (!$outputFile) {
 $baseURL = $endpointURL + "/API/"
 
 # Source build headers function.
-. ".\buildHeaders.ps1"
+. ".\buildheaders.ps1"
 
 # Source Basic auth function.
 . ".\basicauth.ps1"

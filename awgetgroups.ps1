@@ -75,7 +75,7 @@ $restUser = Get-BasicUserForAuth $userInfo
 $headers = Build-Headers $restUser $tenantAPIKey $contentType $contentType
 
 # Setup our caller string to get the groups
-$changeURL = $baseURL + "system/groups/search"
+$changeURL = $baseURL + "system/groups/search?pageSize=10000"
 
 # Write out information for us to know what's going on.
 Write-Verbose ""

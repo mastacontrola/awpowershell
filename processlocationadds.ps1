@@ -6,9 +6,9 @@
 
     .USAGE
         Ensure we have the files to parse through
-        1. inputFile1 = File to lookup (With device serials)
-        2. inputFile2 = File to lookup (With location information)
-        3. inputFile3 = File to read in (This is the file we're basing our
+        1. deviceCSV = File to lookup (With device serials)
+        2. locationCSV = File to lookup (With location information)
+        3. baseCSV = File to read in (This is the file we're basing our
         updates from.)
         4. outputFile = Where to store matches so we can do something with.
 
@@ -69,7 +69,7 @@ If (!$outputFile) {
 $baseURL = $endpointURL + "/API/"
 
 # Source build headers function.
-. ".\buildHeaders.ps1"
+. ".\buildheaders.ps1"
 
 # Source Basic auth function.
 . ".\basicauth.ps1"
